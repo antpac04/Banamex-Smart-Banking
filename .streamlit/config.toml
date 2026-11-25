@@ -1,0 +1,16 @@
+# Tema institucional (lo lee Streamlit automáticamente al correr desde la raíz del proyecto)
+[theme]
+base = "light"
+primaryColor = "#C8102E"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F6F9"
+textColor = "#1F2937"
+font = "sans serif"
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = false
+showSidebarNavigation = false
+
+[browser]
+gatherUsageStats = false

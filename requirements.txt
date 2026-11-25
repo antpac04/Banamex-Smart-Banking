@@ -1,0 +1,18 @@
+# Python 3.11+ (probado en el equipo con 3.12/3.13)
+python-dotenv>=1.1.1
+langchain[mcp]>=1.4        # create_agent + langchain.mcp.MCPAdapter (beta)
+langchain-core
+fastmcp>=4.0.11            # servidores MCP y cliente que usa MCPAdapter
+psycopg[binary]>=3.2
+pixeltable-pgserver>=0.7   # PostgreSQL EMBEBIDO vía pip (sin Docker)
+langchain-ollama>=0.3.10   # LLM local (llama3.1) y embeddings (bge-m3)
+langchain-pinecone>=0.2.13
+pymupdf>=1.24              # lectura de PDF (fitz)
+numpy>=1.26
+streamlit>=1.40            # frontend
+plotly>=5.20               # gráficas (barras, líneas, pastel, histograma)
+pandas>=2.0
+reportlab>=4.0             # solo para scripts/generar_pdfs_prueba.py
+pytest>=8.0
+# OCR opcional (PDF escaneados): pip install pytesseract pillow  + instalar Tesseract
+# Otro LLM:  pip install langchain-google-genai  |  pip install langchain-anthropic

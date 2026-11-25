@@ -1,0 +1,16 @@
+%% Diagrama de arquitectura (hub and spoke). Explicación completa en docs/ARQUITECTURA.md
+flowchart TD
+    U[Usuario: cliente o colaborador] --> F[Frontend Streamlit]
+    F --> G1[Controles deterministas<br/>manipulación · dato restringido · solo lectura]
+    G1 --> H{Hub / Orquestador}
+    H -->|ficha, auditoría, calidad| DIR[Rutas directas del colaborador]
+    H <-->|pregunta / tablas| AD[Agente de Datos]
+    H <-->|pregunta / fragmentos con cita| AR[Agente de Documentos - RAG]
+    H <-->|PDF / ficha del documento| AL[Agente Lector de Documentos]
+    H <-->|tablas / gráfica| AG[Agente de Gráficas]
+    AD --> M1[MCP postgres]
+    AR --> M2[MCP governance]
+    M1 --> SEM[(Capa semántica<br/>semantic.*)]
+    M1 --> PG[(PostgreSQL<br/>roles + RLS)]
+    M2 --> PC[(Pinecone)]
+    H --> G2[Filtro de salida] --> F

@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {"name": "Frontend (Streamlit)", "type": "debugpy", "request": "launch", "module": "streamlit",
+     "args": ["run", "app.py"], "cwd": "${workspaceFolder}"},
+    {"name": "Chat CLI - cliente 42", "type": "debugpy", "request": "launch", "program": "src/agent.py",
+     "args": ["--cliente", "42", "-i"], "console": "integratedTerminal", "cwd": "${workspaceFolder}"},
+    {"name": "Chat CLI - empleado", "type": "debugpy", "request": "launch", "program": "src/agent.py",
+     "args": ["--user", "ana.steward", "-i"], "console": "integratedTerminal", "cwd": "${workspaceFolder}"},
+    {"name": "Evaluación", "type": "debugpy", "request": "launch", "program": "src/run_test_cases.py",
+     "console": "integratedTerminal", "cwd": "${workspaceFolder}"}
+  ]
+}
