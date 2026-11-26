@@ -10,6 +10,7 @@ case "$cmd" in
   ask) "$PY" src/agent.py "$@" ;;
   demo) "$PY" src/agent.py --demo "$@" ;;
   tests) "$PY" src/run_test_cases.py "$@" ;;
+  eval-ls) "$PY" src/evaluar_langsmith.py "$@" ;;
   pytest) "$PY" -m pytest -q "$@" ;;
   check) "$PY" scripts/check_setup.py ;;
   ingest) "$PY" src/ingest_governance.py --reset ;;

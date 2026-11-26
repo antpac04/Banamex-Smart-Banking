@@ -108,7 +108,7 @@ def barra(subtitulo: str = ""):
 
 
 def pie():
-    st.markdown('<div class="pie">Prototipo académico con información ficticia.</div>', unsafe_allow_html=True)
+    pass
 
 
 def estilo_grafica(fig):

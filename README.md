@@ -41,7 +41,8 @@ La primera vez tarda: dependencias, ~5 GB de modelos y 5-15 min para indexar el 
 | `.\run.ps1 web`                                           | **Frontend** (lo recomendado para la demo)                      |
 | `.\run.ps1 check`                                         | Diagnóstico: Ollama, BD, RLS, capa semántica, Pinecone          |
 | `.\run.ps1 pytest`                                        | Pruebas sin modelo                                              |
-| `.\run.ps1 tests`                                         | Evaluación con el modelo → `docs\RESULTADOS_PRUEBAS.md`         |
+| `.\run.ps1 tests`                                         | Evaluación local con el modelo → `docs\RESULTADOS_PRUEBAS.md`   |
+| `.\run.ps1 eval-ls`                                       | Evaluación con LangSmith (ver sección abajo)                    |
 | `.\run.ps1 chat --cliente 42`                             | Chat en terminal como cliente (PIN `1234`)                      |
 | `.\run.ps1 chat --user ana.steward`                       | Chat en terminal como colaborador (`Banamex2026!`)              |
 | `.\run.ps1 ask --user ana.steward "¿Saldo total de TDC?"` | Una sola pregunta                                               |
@@ -60,6 +61,27 @@ Para depurar (ver ruta, herramientas y SQL debajo de cada respuesta): `$env:STEW
 **Usuarios demo:** clientes `1` a `5000` con PIN `1234` · colaboradores `ana.steward` y `luis.analista` con `Banamex2026!`.
 
 > **No compartas el proyecto con `.env` dentro** (tiene tus claves). Usa `.\run.ps1 empaquetar`.
+
+---
+
+## Evaluación con LangSmith
+
+`.\run.ps1 eval-ls` corre 20 preguntas (10 de cliente, 10 de colaborador; 6 de ellas adversariales) **3 veces cada una**
+y las califica en LangSmith (_Datasets & Experiments_):
+
+| Métrica             | Cómo se mide                                                                      |
+| ------------------- | --------------------------------------------------------------------------------- |
+| `correccion_cifras` | Las cifras de la respuesta coinciden con las de la BD (SQL calculado al evaluar)  |
+| `correccion_juez`   | Un modelo-juez revisa si la respuesta cumple el criterio esperado                 |
+| `sin_alucinacion`   | Todo dato de la respuesta está en lo que devolvieron las herramientas             |
+| `uso_herramientas`  | Ruta del hub y herramientas usadas = las esperadas                                |
+| `seguridad`         | Sin fuga de otro cliente ni datos restringidos; se rechaza lo que debe rechazarse |
+| `latencia_s`        | Segundos por respuesta                                                            |
+| `repetibilidad`     | % de preguntas con la misma ruta, herramientas y cifras en las 3 repeticiones     |
+
+Requisitos en `.env`: `LANGSMITH_API_KEY` (de smith.langchain.com) y `LANGSMITH_TRACING=true`.
+Opciones: `--reps 1` (rápido y barato), `--solo C01 E01`. Reporte local en `docs\EVALUACION_LANGSMITH.md`.
+Tokens, costo y latencia de cada paso (clasificación, herramientas, modelo) se ven abriendo la traza de cualquier fila.
 
 ---
 
@@ -130,12 +152,13 @@ src/
   rag_store.py              Pinecone + metadatos de audiencia
   pdf_reader.py             PyMuPDF + OCR + fragmentos
   ingest_governance.py      indexa rag_documents/ en Pinecone
-  run_test_cases.py         evaluación con métricas del docx
+  run_test_cases.py         evaluación local con métricas del docx
+  evaluar_langsmith.py      evaluación con LangSmith (correctness, alucinación, tools, repetibilidad)
   common.py                 .env, LLM (ollama|google|anthropic), embeddings, SQL_LIBRE
 sql/                        000-003 del socio · 010 roles + RLS · 020 validación de la capa semántica
 sql/semantica/              capa semántica del socio (01-08; 05 corregido)
 scripts/                    setup_all · load_db · check_setup · stop_db · generar_pdfs_prueba · empaquetar
-tests/                      auth · sql_server · charts · router · intenciones · lector · semantica
+tests/                      auth · sql_server · charts · router · intenciones · lector · semantica · evaluadores
 docs/ARQUITECTURA.md        arquitectura detallada (arquitectura.mmd: solo el diagrama)
 .streamlit/config.toml      tema institucional del frontend
 .vscode/                    configuraciones de Run and Debug (F5)

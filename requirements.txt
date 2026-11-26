@@ -14,5 +14,6 @@ plotly>=5.20               # gráficas (barras, líneas, pastel, histograma)
 pandas>=2.0
 reportlab>=4.0             # solo para scripts/generar_pdfs_prueba.py
 pytest>=8.0
+langsmith>=0.3.13          # trazas (tokens, latencia, costo) y evaluaciones
 # OCR opcional (PDF escaneados): pip install pytesseract pillow  + instalar Tesseract
 # Otro LLM:  pip install langchain-google-genai  |  pip install langchain-anthropic

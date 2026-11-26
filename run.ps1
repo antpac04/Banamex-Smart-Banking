@@ -4,7 +4,8 @@
 #   .\run.ps1 chat --user ana.steward     chat en terminal como empleado (Banamex2026!)
 #   .\run.ps1 ask --user ana.steward "pregunta"
 #   .\run.ps1 demo --cliente 42           preguntas de demo
-#   .\run.ps1 tests                       evaluación con LLM -> docs\RESULTADOS_PRUEBAS.md
+#   .\run.ps1 tests                       evaluación local con LLM -> docs\RESULTADOS_PRUEBAS.md
+#   .\run.ps1 eval-ls                     evaluación con LangSmith (correctness, alucinación, tools, repetibilidad)
 #   .\run.ps1 pytest                      pruebas sin LLM (roles, SQL, RLS, servidor MCP)
 #   .\run.ps1 check                       diagnóstico
 #   .\run.ps1 ingest                      re-indexa rag_documents en Pinecone
@@ -24,6 +25,7 @@ switch ($cmd) {
     "ask"       { & $py src\agent.py @rest }
     "demo"      { & $py src\agent.py --demo @rest }
     "tests"     { & $py src\run_test_cases.py @rest }
+    "eval-ls"   { & $py src\evaluar_langsmith.py @rest }
     "pytest"    { & $py -m pytest -q @rest }
     "check"     { & $py scripts\check_setup.py }
     "ingest"    { & $py src\ingest_governance.py --reset }
@@ -34,5 +36,5 @@ switch ($cmd) {
     "add-user"  { & $py src\auth.py add @rest }
     "pdfs"      { & $py scripts\generar_pdfs_prueba.py @rest }
     "empaquetar" { & $py scripts\empaquetar.py }
-    default     { Write-Host "Comando desconocido: $cmd (web, chat, ask, demo, tests, pytest, check, ingest, load-db, reload-db, stop-db, users, add-user, pdfs, empaquetar)" }
+    default     { Write-Host "Comando desconocido: $cmd (web, chat, ask, demo, tests, eval-ls, pytest, check, ingest, load-db, reload-db, stop-db, users, add-user, pdfs, empaquetar)" }
 }

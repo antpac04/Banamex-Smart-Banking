@@ -23,6 +23,8 @@ Terminal:
 """
 import argparse
 import asyncio
+import concurrent.futures
+import contextvars
 import getpass
 import json
 import os
@@ -39,6 +41,12 @@ import auth  # noqa: E402
 import charts  # noqa: E402
 import common  # noqa: E402
 from agente_lector import AgenteLector, FichaDocumento  # noqa: E402
+
+try:  # trazas en LangSmith (solo se envían si LANGSMITH_TRACING=true en .env)
+    from langsmith import traceable
+except ImportError:  # sin langsmith instalado el proyecto funciona igual
+    def traceable(*_a, **_k):
+        return (lambda f: f) if not (_a and callable(_a[0])) else _a[0]
 
 SRC = Path(__file__).resolve().parent
 RUTAS = ("DATOS", "DOCUMENTOS", "AMBOS", "PDF", "GENERAL")
@@ -267,7 +275,25 @@ class Steward:
             self._loop.call_soon_threadsafe(self._stop.set)
 
     def _correr(self, coro, timeout: float = 600):
-        return asyncio.run_coroutine_threadsafe(coro, self._loop).result(timeout=timeout)
+        """Ejecuta la corrutina en el hilo de la sesión CONSERVANDO el contexto de quien llama
+        (así las llamadas al modelo y a las herramientas quedan anidadas en la misma traza de LangSmith)."""
+        ctx = contextvars.copy_context()
+        fut: concurrent.futures.Future = concurrent.futures.Future()
+
+        def _arrancar():
+            tarea = self._loop.create_task(coro, context=ctx)
+
+            def _fin(t: asyncio.Task):
+                if t.cancelled():
+                    fut.cancel()
+                elif t.exception() is not None:
+                    fut.set_exception(t.exception())
+                else:
+                    fut.set_result(t.result())
+            tarea.add_done_callback(_fin)
+
+        self._loop.call_soon_threadsafe(_arrancar)
+        return fut.result(timeout=timeout)
 
     def herramientas(self) -> dict:
         return {"datos": [t.name for t in self.tools_datos], "documentos": [t.name for t in self.tools_docs]}
@@ -576,6 +602,7 @@ Primero los hallazgos con cifras exactas y luego lo que dice la norma con sus ci
         auth.auditar(self.ident, "grafica", True, tipo=g.tipo, origen=g.tabla.origen)
         return g.a_dict()
 
+    @traceable(name="data_steward", run_type="chain")
     def preguntar(self, q: str) -> Respuesta:
         patron = auth.detectar_inyeccion(q)
         if patron:
